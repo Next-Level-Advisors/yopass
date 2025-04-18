@@ -3,7 +3,6 @@ import { ThemeProvider, StyledEngineProvider } from '@mui/material/styles';
 
 import { Header } from './shared/Header';
 import { Routing } from './Routing';
-import { Features } from './shared/Features';
 import { Attribution } from './shared/Attribution';
 import { theme } from './theme';
 import { HashRouter } from 'react-router-dom';
@@ -18,15 +17,20 @@ const App = () => {
     });
   }
 
-  const features = process.env.YOPASS_DISABLE_FEATURES_CARDS !== '1';
   return (
     <StyledEngineProvider injectFirst>
       <ThemeProvider theme={theme}>
         <HashRouter>
           <Header />
-          <Container maxWidth={'lg'}>
+          <Container maxWidth={'lg'} 
+            sx={{ 
+              height: 'calc(100vh - 120px)', 
+              display: 'flex', 
+              flexDirection: 'column',
+              paddingTop: 2,
+              paddingBottom: 2
+            }}>
             <Routing />
-            {features && <Features />}
             <Attribution />
           </Container>
         </HashRouter>

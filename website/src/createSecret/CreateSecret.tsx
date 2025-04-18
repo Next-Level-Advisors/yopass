@@ -19,7 +19,24 @@ import {
   Grid,
   Box,
   InputLabel,
+  Paper,
+  Radio,
+  RadioGroup,
+  Divider,
 } from '@mui/material';
+
+// Template options
+const TEMPLATES = {
+  "Username/Password": `Website:
+Username:
+Password:`,
+  "Credit Card": `Card Type (Visa/MC/Etc.):
+Name on Card:
+Card Number:
+Expiration (MM/YY)
+CVV:
+Zip Code:`,
+};
 
 const CreateSecret = () => {
   const { t } = useTranslation();
@@ -30,11 +47,13 @@ const CreateSecret = () => {
     watch,
     setError,
     clearErrors,
+    setValue,
   } = useForm({
     defaultValues: {
       generateDecryptionKey: true,
       secret: '',
       onetime: true,
+      template: '',
     },
   });
   const [loading, setLoading] = useState(false);
@@ -84,7 +103,9 @@ const CreateSecret = () => {
     setLoading(false);
   };
 
-  const generateDecryptionKey = watch('generateDecryptionKey');
+  const handleTemplateChange = (template: string) => {
+    setValue('secret', TEMPLATES[template] || '');
+  };
 
   if (result.uuid) {
     return (
@@ -96,145 +117,185 @@ const CreateSecret = () => {
       />
     );
   }
+
   return (
     <>
       <Error
         message={errors.secret?.message}
         onClick={() => clearErrors('secret')}
       />
-      <Typography component="h1" variant="h4" align="center">
-        {t('create.title')}
+
+      <Typography variant="h4" align="center" sx={{ color: 'white', mt: 2, mb: 2 }}>
+        DRIVE Secure | Next Level DRIVE
       </Typography>
+      
+      <Typography align="center" sx={{ color: 'white', mb: 4 }}>
+        How It Works
+      </Typography>
+      
+      <Grid container spacing={3}>
+        <Grid item xs={12}>
+          <Typography sx={{ color: 'white', mb: 1 }}>
+            1. Add your sensitive information in the box below
+          </Typography>
+          <Typography sx={{ color: 'white', mb: 1 }}>
+            2. Determine when you want the information to be automatically deleted
+          </Typography>
+          <Typography sx={{ color: 'white', mb: 3 }}>
+            3. After clicking "Encrypt Message" the contents will be encrypted and you will be
+            provided a link. Send that link to the recipient. Without the link, the information cannot
+            be accessed. If the link is access or found after deletion, the message contents cannot
+            be retrieved.
+          </Typography>
+        </Grid>
+      </Grid>
+
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Grid container justifyContent="center" paddingTop={1}>
-          <Controller
-            name="secret"
-            control={control}
-            render={({ field }) => (
-              <TextField
-                {...field}
-                multiline={true}
-                margin="dense"
-                fullWidth
-                label={t('create.inputSecretLabel')}
-                rows="4"
-                autoFocus={true}
-                onKeyDown={onKeyDown}
-                placeholder={t('create.inputSecretPlaceholder')}
-                slotProps={{
-                  htmlInput: { spellCheck: 'false', 'data-gramm': 'false' },
-                }}
+        <Grid container spacing={3}>
+          {/* Left side - Template selection */}
+          <Grid item xs={12} md={3}>
+            <Paper 
+              elevation={3} 
+              sx={{ 
+                p: 2, 
+                height: '100%', 
+                backgroundColor: 'background.paper',
+                display: 'flex',
+                flexDirection: 'column'
+              }}
+            >
+              <Typography variant="h6" color="secondary" gutterBottom>
+                Load Template
+              </Typography>
+              
+              <Controller
+                name="template"
+                control={control}
+                render={({ field }) => (
+                  <RadioGroup
+                    {...field}
+                    onChange={(e) => {
+                      field.onChange(e);
+                      handleTemplateChange(e.target.value);
+                    }}
+                  >
+                    <FormControlLabel 
+                      value="Username/Password" 
+                      control={<Radio color="secondary" />} 
+                      label="Username/Password" 
+                    />
+                    <FormControlLabel 
+                      value="Credit Card" 
+                      control={<Radio color="secondary" />} 
+                      label="Credit Card" 
+                    />
+                  </RadioGroup>
+                )}
               />
-            )}
-          />
-          <Grid container justifyContent="center" marginTop={2}>
-            <Expiration control={control} />
+            </Paper>
           </Grid>
-          <Grid container alignItems="center" direction="column">
-            <OneTime control={control} />
-            <SpecifyPasswordToggle control={control} />
-            {!generateDecryptionKey && (
-              <SpecifyPasswordInput control={control} />
-            )}
-          </Grid>
-          <Grid container justifyContent="center">
-            <Box p={2} pb={4}>
+
+          {/* Right side - Text input and options */}
+          <Grid item xs={12} md={9}>
+            <Controller
+              name="secret"
+              control={control}
+              render={({ field }) => (
+                <TextField
+                  {...field}
+                  multiline
+                  fullWidth
+                  margin="dense"
+                  rows="12"
+                  autoFocus
+                  onKeyDown={onKeyDown}
+                  placeholder={t('create.inputSecretPlaceholder')}
+                  sx={{ mb: 2, backgroundColor: 'background.paper' }}
+                  slotProps={{
+                    htmlInput: { spellCheck: 'false', 'data-gramm': 'false' },
+                  }}
+                />
+              )}
+            />
+
+            <Box sx={{ mb: 2, color: '#4d9be3' }}>
+              <Typography>Delete Message After:</Typography>
+              <Controller
+                name="expiration"
+                control={control}
+                defaultValue="3600"
+                render={({ field }) => (
+                  <RadioGroup {...field} row>
+                    <FormControlLabel
+                      value="3600"
+                      control={<Radio />}
+                      label="1 Hour"
+                    />
+                    <FormControlLabel
+                      value="86400"
+                      control={<Radio />}
+                      label="1 Day"
+                    />
+                    <FormControlLabel
+                      value="604800"
+                      control={<Radio />}
+                      label="1 Week"
+                    />
+                  </RadioGroup>
+                )}
+              />
+            </Box>
+
+            <Box sx={{ mb: 2, color: '#4d9be3' }}>
+              <FormControlLabel
+                control={
+                  <Controller
+                    name="onetime"
+                    control={control}
+                    render={({ field }) => (
+                      <Checkbox
+                        {...field}
+                        id="enable-onetime"
+                        defaultChecked
+                        color="primary"
+                      />
+                    )}
+                  />
+                }
+                label="One-Time Download: Yes (Message can be opened once and is then deleted)"
+              />
+            </Box>
+
+            {/* Hidden but still active generate decryption key */}
+            <Box sx={{ display: 'none' }}>
+              <Controller
+                name="generateDecryptionKey"
+                control={control}
+                render={({ field }) => (
+                  <Checkbox {...field} defaultChecked color="primary" />
+                )}
+              />
+            </Box>
+
+            <Box sx={{ display: 'flex', justifyContent: 'center', mt: 4 }}>
               <Button
                 onClick={() => handleSubmit(onSubmit)()}
                 variant="contained"
                 disabled={loading}
+                sx={{ 
+                  py: 1.5, 
+                  px: 4, 
+                  borderRadius: '50px',
+                  fontSize: '1.1rem'
+                }}
               >
-                {loading ? (
-                  <span>{t('create.buttonEncryptLoading')}</span>
-                ) : (
-                  <span>{t('create.buttonEncrypt')}</span>
-                )}
+                {loading ? t('create.buttonEncryptLoading') : 'Encrypt Message'}
               </Button>
             </Box>
           </Grid>
         </Grid>
       </form>
     </>
-  );
-};
-
-export const OneTime = (props: { control: Control<any> }) => {
-  const { t } = useTranslation();
-
-  return (
-    <Grid item justifyContent="center">
-      <FormControlLabel
-        control={
-          <Controller
-            name="onetime"
-            control={props.control}
-            render={({ field }) => (
-              <Checkbox
-                {...field}
-                id="enable-onetime"
-                defaultChecked={true}
-                color="primary"
-              />
-            )}
-          />
-        }
-        label={t('create.inputOneTimeLabel') as string}
-      />
-    </Grid>
-  );
-};
-
-export const SpecifyPasswordInput = (props: { control: Control<any> }) => {
-  const { t } = useTranslation();
-  return (
-    <Grid item justifyContent="center">
-      <InputLabel>{t('create.inputPasswordLabel')}</InputLabel>
-      <Controller
-        name="password"
-        control={props.control}
-        render={({ field }) => (
-          <TextField
-            {...field}
-            fullWidth
-            type="text"
-            id="password"
-            variant="outlined"
-            inputProps={{
-              autoComplete: 'off',
-              spellCheck: 'false',
-              'data-gramm': 'false',
-            }}
-            slotProps={{
-              htmlInput: {
-                spellCheck: 'false',
-                'data-gramm': 'false',
-                autoComplete: 'false',
-              },
-            }}
-          />
-        )}
-      />
-    </Grid>
-  );
-};
-
-export const SpecifyPasswordToggle = (props: { control: Control<any> }) => {
-  const { t } = useTranslation();
-  return (
-    <FormGroup>
-      <FormControlLabel
-        control={
-          <Controller
-            name="generateDecryptionKey"
-            control={props.control}
-            render={({ field }) => (
-              <Checkbox {...field} defaultChecked={true} color="primary" />
-            )}
-          />
-        }
-        label={t('create.inputGenerateLabel') as string}
-      />
-    </FormGroup>
   );
 };
 

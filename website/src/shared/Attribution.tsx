@@ -1,32 +1,14 @@
-import { Container, Link, Typography } from '@mui/material';
-import { useTranslation } from 'react-i18next';
+import { Typography, Link, Box } from '@mui/material';
 
 export const Attribution = () => {
-  const { t } = useTranslation();
-
-  const translationAttribution = () => {
-    return (
-      <Typography variant="body2" color="textSecondary" align="center">
-        {t('attribution.translatedBy')}{' '}
-        <Link href={t('attribution.translatorLink')}>
-          {t('attribution.translatorName')}
-        </Link>
-      </Typography>
-    );
-  };
-
   return (
-    <Container>
-      <Typography
-        margin={4}
-        variant="body2"
-        color="textSecondary"
-        align="center"
+    <Box sx={{ mt: 'auto', pt: 2, textAlign: 'center' }}>
+      <Typography 
+        variant="body2" 
+        color="text.secondary"
       >
-        {t('attribution.createdBy')}{' '}
-        <Link href="https://github.com/jhaals/yopass">Johan Haals</Link>
+        Created by <Link href="https://github.com/jhaals/yopass" color="secondary">Johan Haals</Link>
       </Typography>
-      {t('attribution.translatorName') && translationAttribution()}
-    </Container>
+    </Box>
   );
 };

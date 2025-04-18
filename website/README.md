@@ -47,3 +47,13 @@ PUBLIC_URL='https://my-domain.com' REACT_APP_BACKEND_URL='http://api.my-domain.c
 
 - `YOPASS_DISABLE_FEATURES_CARDS=1` - Allows disabling Features cards
 - `YOPASS_DISABLE_ONE_CLICK_LINK=1` - Allows disabling "One-click link" support
+
+## Changelog
+
+### v0.2.0
+- Complete UI redesign with DRIVE branding
+- Added template functionality for common credential formats
+- Changed color scheme to dark mode with green accent color
+- Added simplified navigation with "Encrypt Another Message" button
+- Removed file upload functionality
+- Simplified link sharing to only use the one-click link format

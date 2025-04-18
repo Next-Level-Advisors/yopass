@@ -4,14 +4,12 @@ import { useCopyToClipboard } from 'react-use';
 import {
   Button,
   Typography,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableRow,
   Box,
+  Paper,
+  Grid,
 } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { Link } from 'react-router-dom';
 
 type ResultProps = {
   readonly uuid: string;
@@ -20,61 +18,76 @@ type ResultProps = {
   readonly customPassword?: boolean;
 };
 
-const Result = ({ uuid, password, prefix, customPassword }: ResultProps) => {
+const Result = ({ uuid, password, prefix }: ResultProps) => {
   const base =
     (process.env.PUBLIC_URL ||
       `${window.location.protocol}//${window.location.host}`) + `/#/${prefix}`;
-  const short = `${base}/${uuid}`;
-  const full = `${short}/${password}`;
-  const oneClickLink = process.env.YOPASS_DISABLE_ONE_CLICK_LINK !== '1';
+  const fullLink = `${base}/${uuid}/${password}`;
   const { t } = useTranslation();
-
-  return (
-    <Box>
-      <Typography variant="h4">{t('result.title')}</Typography>
-      <Typography>
-        {t('result.subtitleDownloadOnce')}
-        <br />
-        {t('result.subtitleChannel')}
-      </Typography>
-      <TableContainer>
-        <Table>
-          <TableBody>
-            {oneClickLink && !customPassword && (
-              <Row label={t('result.rowLabelOneClick')} value={full} />
-            )}
-            <Row label={t('result.rowLabelShortLink')} value={short} />
-            <Row label={t('result.rowLabelDecryptionKey')} value={password} />
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Box>
-  );
-};
-
-type RowProps = {
-  readonly label: string;
-  readonly value: string;
-};
-
-const Row = ({ label, value }: RowProps) => {
   const [copy, copyToClipboard] = useCopyToClipboard();
+  
+  const handleCopy = () => {
+    copyToClipboard(fullLink);
+  };
+
   return (
-    <TableRow key={label}>
-      <TableCell width="15">
-        <Button
-          color={copy.error ? 'secondary' : 'primary'}
-          variant="contained"
-          onClick={() => copyToClipboard(value)}
-        >
-          <FontAwesomeIcon icon={faCopy} />
-        </Button>
-      </TableCell>
-      <TableCell width="100" padding="none">
-        <strong>{label}</strong>
-      </TableCell>
-      <TableCell>{value}</TableCell>
-    </TableRow>
+    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+      <Typography variant="h4" align="center" sx={{ mb: 8, color: 'white' }}>
+        Secret Stored in Database
+      </Typography>
+      
+      <Paper sx={{ 
+        p: 4, 
+        width: '100%', 
+        maxWidth: '600px', 
+        backgroundColor: 'background.paper',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        mb: 8
+      }}>
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={handleCopy}
+              startIcon={<FontAwesomeIcon icon={faCopy} />}
+              sx={{ mr: 2 }}
+            >
+              Copy to Clipboard
+            </Button>
+          </Grid>
+          
+          <Grid item xs>
+            <Typography 
+              variant="body1" 
+              sx={{ 
+                wordBreak: 'break-all',
+                color: copy.error ? 'error.main' : 'text.primary' 
+              }}
+            >
+              {fullLink}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Paper>
+      
+      <Button
+        component={Link}
+        to="/"
+        variant="contained"
+        color="primary"
+        sx={{ 
+          py: 1.5, 
+          px: 4, 
+          borderRadius: '50px',
+          fontSize: '1.1rem'
+        }}
+      >
+        Encrypt Another Message
+      </Button>
+    </Box>
   );
 };
 
